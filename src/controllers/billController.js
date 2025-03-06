@@ -1,5 +1,6 @@
 const Bill = require('~/models/Bill');
-
+const Statistic = require('~/models/Statistic');
+const mongoose = require('mongoose');
 // Lấy tất cả hóa đơn
 exports.getAllBills = async (req, res) => {
     try {
@@ -50,5 +51,97 @@ exports.getBillById = async (req, res) => {
         res.status(200).json(bill);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy chi tiết hóa đơn', error });
+    }
+};
+
+
+exports.getBillsByDay = async (req, res) => {
+    try {
+        const { garageId } = req.params;
+        const { date } = req.query; // format: YYYY-MM-DD
+
+        if (!date) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp ngày (YYYY-MM-DD)' });
+        }
+
+        // Tạo date một cách an toàn
+        const [year, month, day] = date.split('-').map(num => parseInt(num));
+        const start = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+        const end = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+
+        // Kiểm tra xem start và end có phải là Invalid Date không
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return res.status(400).json({ message: 'Ngày tháng không hợp lệ' });
+        }
+
+        const bills = await Bill.find({
+            garageId: new mongoose.Types.ObjectId(garageId),
+            createdAt: { $gte: start, $lte: end }
+        }).lean();
+
+        res.status(200).json(bills);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi khi lấy danh sách hóa đơn theo ngày', error: error.message });
+    }
+};
+
+// Phương thức tổng kết bill trong một ngày và tạo thống kê
+exports.summarizeDailyBills = async (req, res) => {
+    try {
+        const { garageId } = req.params;
+        const { date } = req.query; // format: YYYY-MM-DD
+
+        if (!date) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp ngày (YYYY-MM-DD)' });
+        }
+
+        // Tạo date một cách an toàn
+        const [year, month, day] = date.split('-').map(num => parseInt(num));
+        const start = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+        const end = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+
+        // Kiểm tra xem start và end có phải là Invalid Date không
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return res.status(400).json({ message: 'Ngày tháng không hợp lệ' });
+        }
+
+        // Tổng hợp thống kê bill trong ngày
+        const dailyBillsSummary = await Bill.aggregate([
+            { 
+                $match: {  
+                    garageId: new mongoose.Types.ObjectId(garageId),
+                    createdAt: { $gte: start, $lte: end } 
+                } 
+            },
+            { 
+                $group: { 
+                    _id: null,
+                    totalCustomers: { $sum: 1 },
+                    totalRevenue: { $sum: '$totalAmount' }
+                }
+            }
+        ]);
+
+        // Lấy dữ liệu từ aggregation
+        const summaryData = dailyBillsSummary.length > 0 
+            ? dailyBillsSummary[0] 
+            : { totalCustomers: 0, totalRevenue: 0 };
+
+        // Tạo bản ghi thống kê mới
+        const newStatistic = new Statistic({
+            garageId: garageId,
+            totalCustomers: summaryData.totalCustomers,
+            totalRevenue: summaryData.totalRevenue
+        });
+
+        // Lưu bản ghi thống kê
+        const savedStatistic = await newStatistic.save();
+
+        res.status(200).json({
+            billSummary: summaryData,
+            statisticRecord: savedStatistic
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi khi tổng kết bill trong ngày', error: error.message });
     }
 };

@@ -18,7 +18,7 @@ app.use('/statistics', statisticRoutes);
 
 app.use('/schedule', scheduleRoutes);
 
-app.use('/bill', billRoutes);
+app.use('/bills', billRoutes);
 
 app.use('/service', serviceRoutes);
 
