@@ -1,7 +1,7 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-require("dotenv").config();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+require('dotenv').config();
 
 // Đăng ký tài khoản
 const register = async (req, res) => {
@@ -11,7 +11,7 @@ const register = async (req, res) => {
     // Kiểm tra xem email đã tồn tại chưa
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email đã được sử dụng" });
+      return res.status(400).json({ message: 'Email đã được sử dụng' });
     }
 
     // Mã hóa mật khẩu
@@ -30,9 +30,9 @@ const register = async (req, res) => {
 
     res
       .status(201)
-      .json({ message: "Đăng ký thành công", userId: newUser._id });
+      .json({ message: 'Đăng ký thành công', userId: newUser._id });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi server", error });
+    res.status(500).json({ message: 'Lỗi server', error });
   }
 };
 
@@ -46,7 +46,7 @@ const login = async (req, res) => {
     if (!user) {
       return res
         .status(400)
-        .json({ message: "Email hoặc mật khẩu không đúng" });
+        .json({ message: 'Email hoặc mật khẩu không đúng' });
     }
 
     // So sánh mật khẩu
@@ -54,19 +54,19 @@ const login = async (req, res) => {
     if (!isMatch) {
       return res
         .status(400)
-        .json({ message: "Email hoặc mật khẩu không đúng" });
+        .json({ message: 'Email hoặc mật khẩu không đúng' });
     }
 
     // Tạo token
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" } // Token hết hạn sau 7 ngày
+      { expiresIn: '7d' } // Token hết hạn sau 7 ngày
     );
 
-    res.status(200).json({ message: "Đăng nhập thành công", token });
+    res.status(200).json({ message: 'Đăng nhập thành công', token });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi server", error });
+    res.status(500).json({ message: 'Lỗi server', error });
   }
 };
 

@@ -1,4 +1,4 @@
-const Booking = require("~/models/Booking");
+const Booking = require('~/models/Booking');
 
 // Lấy tất cả booking
 exports.getAllBookings = async (req, res) => {
@@ -7,7 +7,7 @@ exports.getAllBookings = async (req, res) => {
     // const bookings = await Booking.find().populate('customerId').populate('garageId');
     res.status(200).json(bookings);
   } catch (error) {
-    res.status(500).json({ message: "Lỗi khi lấy danh sách booking", error });
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách booking', error });
   }
 };
 
@@ -18,13 +18,13 @@ exports.getAllBookings = async (req, res) => {
 //     const savedBooking = await newBooking.save();
 //     res.status(201).json(savedBooking);
 //   } catch (error) {
-//     res.status(400).json({ message: "Lỗi khi tạo booking", error });
+//     res.status(400).json({ message: 'Lỗi khi tạo booking', error });
 //   }
 // };
-// const Booking = require("../models/Booking");
+// const Booking = require('../models/Booking');
 
 // 📌 Đặt lịch mới
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 // 📌 Đặt lịch mới
 exports.createBooking = async (req, res) => {
@@ -39,7 +39,7 @@ exports.createBooking = async (req, res) => {
       cancelReason,
     } = req.body;
 
-    const customerId = "67cfb1494fd45f254a02e4f6"; // ID khách hàng mẫu
+    const customerId = '67cfb1494fd45f254a02e4f6'; // ID khách hàng mẫu
 
     // Kiểm tra dữ liệu bắt buộc
     if (
@@ -50,12 +50,12 @@ exports.createBooking = async (req, res) => {
       !bookingDate.date ||
       !bookingDate.timeSlot
     ) {
-      return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
+      return res.status(400).json({ message: 'Thiếu thông tin bắt buộc!' });
     }
 
     // Chuyển đổi garageId thành ObjectId
     if (!mongoose.Types.ObjectId.isValid(garageId)) {
-      return res.status(400).json({ message: "garageId không hợp lệ!" });
+      return res.status(400).json({ message: 'garageId không hợp lệ!' });
     }
 
     const newBooking = new Booking({
@@ -69,18 +69,18 @@ exports.createBooking = async (req, res) => {
         timeSlot: bookingDate.timeSlot,
       },
       garageId: new mongoose.Types.ObjectId(garageId), // Chuyển đổi sang ObjectId
-      status: "Pending",
-      cancelReason: cancelReason || "",
+      status: 'Pending',
+      cancelReason: cancelReason || '',
     });
 
     await newBooking.save();
 
     res.status(201).json({
-      message: "Đặt lịch thành công!",
+      message: 'Đặt lịch thành công!',
       booking: newBooking,
     });
   } catch (error) {
-    res.status(500).json({ message: "Lỗi khi đặt lịch!", error });
+    res.status(500).json({ message: 'Lỗi khi đặt lịch!', error });
   }
 };
 
@@ -91,7 +91,7 @@ exports.updateBooking = async (req, res) => {
     const { status, cancelReason } = req.body;
 
     const updateData = { status };
-    if (status === "Cancelled" && cancelReason) {
+    if (status === 'Cancelled' && cancelReason) {
       updateData.cancelReason = cancelReason;
     }
 
@@ -100,12 +100,12 @@ exports.updateBooking = async (req, res) => {
     });
 
     if (!updatedBooking) {
-      return res.status(404).json({ message: "Không tìm thấy booking" });
+      return res.status(404).json({ message: 'Không tìm thấy booking' });
     }
 
     res.status(200).json(updatedBooking);
   } catch (error) {
-    console.error("Error updating booking:", error);
-    res.status(500).json({ message: "Lỗi khi cập nhật booking", error });
+    console.error('Error updating booking:', error);
+    res.status(500).json({ message: 'Lỗi khi cập nhật booking', error });
   }
 };
