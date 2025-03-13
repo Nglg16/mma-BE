@@ -24,6 +24,9 @@ exports.getAllBookings = async (req, res) => {
 // const Booking = require("../models/Booking");
 
 // 📌 Đặt lịch mới
+const mongoose = require("mongoose");
+
+// 📌 Đặt lịch mới
 exports.createBooking = async (req, res) => {
   try {
     const {
@@ -32,13 +35,13 @@ exports.createBooking = async (req, res) => {
       customerEmail,
       service,
       bookingDate, // bookingDate cần chứa { date, timeSlot }
+      garageId, // Nhận garageId từ FE
       cancelReason,
     } = req.body;
 
     const customerId = "67cfb1494fd45f254a02e4f6"; // ID khách hàng mẫu
-    const garageId = "652f1a5e8a3b45b6e89f5b08"; // ID garage mẫu
 
-    // Kiểm tra đủ dữ liệu
+    // Kiểm tra dữ liệu bắt buộc
     if (
       !customerId ||
       !garageId ||
@@ -50,7 +53,11 @@ exports.createBooking = async (req, res) => {
       return res.status(400).json({ message: "Thiếu thông tin bắt buộc!" });
     }
 
-    // Tạo đơn đặt lịch
+    // Chuyển đổi garageId thành ObjectId
+    if (!mongoose.Types.ObjectId.isValid(garageId)) {
+      return res.status(400).json({ message: "garageId không hợp lệ!" });
+    }
+
     const newBooking = new Booking({
       customerId,
       customerName,
@@ -61,9 +68,9 @@ exports.createBooking = async (req, res) => {
         date: bookingDate.date,
         timeSlot: bookingDate.timeSlot,
       },
-      garageId,
+      garageId: new mongoose.Types.ObjectId(garageId), // Chuyển đổi sang ObjectId
       status: "Pending",
-      cancelReason: cancelReason || "", // Nếu không có lý do hủy thì mặc định là chuỗi rỗng
+      cancelReason: cancelReason || "",
     });
 
     await newBooking.save();
