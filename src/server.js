@@ -10,7 +10,7 @@ app.use(cors());
 
 app.use(express.json()); // Để xử lý JSON
 
-const port = 8002;
+const port = 8003;
 
 // Routes init
 route(app);
