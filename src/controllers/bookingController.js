@@ -11,6 +11,15 @@ exports.getAllBookings = async (req, res) => {
   }
 };
 
+exports.getAllBookingsOfUser = async (req, res) => {
+  try {
+    const bookings = await Booking.find().lean();
+  
+    res.status(200).json(bookings);
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách booking', error });
+  }
+};
 // // Tạo booking mới
 // exports.createBooking = async (req, res) => {
 //   try {
@@ -39,7 +48,7 @@ exports.createBooking = async (req, res) => {
       cancelReason,
     } = req.body;
 
-    const customerId = '67cfb1494fd45f254a02e4f6'; // ID khách hàng mẫu
+    const customerId = '67cfb1494fd45f254a02e4f6'; 
 
     // Kiểm tra dữ liệu bắt buộc
     if (

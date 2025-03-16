@@ -3,7 +3,9 @@ const cors = require('cors');
 const route = require('./routes');
 const db = require('~/config/mongodb');
 const app = express();
-require('dotenv').config();
+require('dotenv').config({});
+
+
 
 // Middleware
 app.use(cors());
