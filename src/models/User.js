@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema(
     password: { type: String, required: true },
     role: {
       type: String,
-      enum: ['customer', 'garage_owner', 'admin'],
+      enum: ["customer", "garage_owner", "admin"],
       required: true,
     },
     vehicles: [
@@ -25,4 +25,4 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true } // Thêm cả updatedAt
 );
 
-module.exports = mongoose.model('User', UserSchema, 'users');
+module.exports = mongoose.model("User", UserSchema, "users");
