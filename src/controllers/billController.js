@@ -105,7 +105,20 @@ exports.summarizeDailyBills = async (req, res) => {
             return res.status(400).json({ message: 'Ngày tháng không hợp lệ' });
         }
 
-        // Tổng hợp thống kê bill trong ngày
+        // Kiểm tra xem ngày này đã được tổng kết chưa
+        const existingSummary = await Statistic.findOne({
+            garageId: new mongoose.Types.ObjectId(garageId),
+            createdAt: { $gte: start, $lte: end }
+        });
+
+        if (existingSummary) {
+            return res.status(400).json({ 
+                message: 'Ngày này đã được tổng kết trước đó',
+                summary: existingSummary
+            });
+        }
+
+        // Tổng hợp thống kê bill trong ngày theo ngày đã chọn (không phải ngày hiện tại)
         const dailyBillsSummary = await Bill.aggregate([
             { 
                 $match: {  
@@ -127,11 +140,12 @@ exports.summarizeDailyBills = async (req, res) => {
             ? dailyBillsSummary[0] 
             : { totalCustomers: 0, totalRevenue: 0 };
 
-        // Tạo bản ghi thống kê mới
+        // Tạo bản ghi thống kê mới với createdAt là ngày đã chọn
         const newStatistic = new Statistic({
             garageId: garageId,
             totalCustomers: summaryData.totalCustomers,
-            totalRevenue: summaryData.totalRevenue
+            totalRevenue: summaryData.totalRevenue,
+            createdAt: start // Đặt createdAt là ngày đã chọn, không lấy ngày hiện tại
         });
 
         // Lưu bản ghi thống kê

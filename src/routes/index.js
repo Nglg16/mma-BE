@@ -12,6 +12,8 @@ const billRoutes = require("./billRoutes");
 
 const userRoutes = require("./userRoutes");
 
+const evaluateRoutes = require("./evaluate");
+
 function route(app) {
   app.use("/garages", Garages);
 
@@ -26,6 +28,8 @@ function route(app) {
   app.use("/service", serviceRoutes);
 
   app.use("/auth", userRoutes);
+
+  app.use("/evaluates", evaluateRoutes);
 }
 
 module.exports = route;

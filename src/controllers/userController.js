@@ -57,9 +57,14 @@ const login = async (req, res) => {
         .json({ message: "Email hoặc mật khẩu không đúng" });
     }
 
-    // Tạo token
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      {
+        userId: user._id,
+        role: user.role,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "7d" } // Token hết hạn sau 7 ngày
     );
